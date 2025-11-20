@@ -330,28 +330,27 @@
       white-space: nowrap;
     }
 
-/* 測定値テーブルの崩れ防止 */
-.measure-table {
-  display: grid;
-  grid-template-columns: 60px 1fr 1fr 1fr;
-  gap: 6px;
-  width: 100%;
-  margin-top: 4px;
-}
-.measure-table input {
-  width: 100%;
-  min-width: 0;   /* フォームが横にはみ出さないようにする */
-  padding: 4px 6px;
-  border-radius: 6px;
-  border: 1px solid #cbd5f5;
-  font-size: 0.85rem;
-}
-.measure-table div {
-  font-size: 0.8rem;
-  display: flex;
-  align-items: center;
-}
-
+    /* 測定値テーブルの崩れ防止 */
+    .measure-table {
+      display: grid;
+      grid-template-columns: 60px 1fr 1fr 1fr;
+      gap: 6px;
+      width: 100%;
+      margin-top: 4px;
+    }
+    .measure-table input {
+      width: 100%;
+      min-width: 0;  /* フォームが横にはみ出さないようにする */
+      padding: 4px 6px;
+      border-radius: 6px;
+      border: 1px solid #cbd5f5;
+      font-size: 0.85rem;
+    }
+    .measure-table div {
+      font-size: 0.8rem;
+      display: flex;
+      align-items: center;
+    }
 
     /* QRモーダル */
     #qrOverlay {
@@ -450,13 +449,19 @@
       </div>
     </div>
 
-    <!-- 電池 -->
+    <!-- 電池（いずれか1つだけ選択） -->
     <div class="field-group">
-      <label>電池</label>
+      <label>電池（どれか1つ）</label>
       <div class="field-row small-gap">
-        <label class="chk-label"><input id="batSingle" type="checkbox" />1個</label>
-        <label class="chk-label"><input id="batSeries" type="checkbox" />直列</label>
-        <label class="chk-label"><input id="batParallel" type="checkbox" />並列</label>
+        <label class="chk-label">
+          <input id="batSingle" type="radio" name="batteryType" />1個
+        </label>
+        <label class="chk-label">
+          <input id="batSeries" type="radio" name="batteryType" />直列
+        </label>
+        <label class="chk-label">
+          <input id="batParallel" type="radio" name="batteryType" />並列
+        </label>
       </div>
     </div>
 
@@ -651,7 +656,7 @@
     if (nichrome04.checked) nichrome.push("0.4mm");
     const nichromeLength = nichromeLen.value ? Number(nichromeLen.value) : null;
 
-    // 電池
+    // 電池（ラジオボタンなので必ず0か1個）
     const battery = [];
     if (batSingle.checked) battery.push("1個");
     if (batSeries.checked) battery.push("直列");
@@ -694,15 +699,12 @@
         measure
       });
 
-      // 入力リセット
+      // 入力リセット（名前・班は残す）
       commentInput.value = "";
-      // 名前・班はそのまま残してもよいのでリセットしない
       nichrome02.checked = false;
       nichrome04.checked = false;
       nichromeLen.value = "";
-      batSingle.checked = false;
-      batSeries.checked = false;
-      batParallel.checked = false;
+      batSingle.checked = batSeries.checked = batParallel.checked = false;
       sTemp.value = sVolt.value = sAmp.value = "";
       eTemp.value = eVolt.value = eAmp.value = "";
 
@@ -729,7 +731,7 @@
     return `"${v}"`;
   }
 
-  // ====データ保存（CSVダウンロード） ====
+  // ==== データ保存（CSVダウンロード） ====
   exportBtn.addEventListener("click", () => {
     if (notes.length === 0) {
       alert("保存するデータがありません。");
@@ -934,6 +936,49 @@
     });
   }
 
+  // ==== Gemini に渡す説明テキストを作成 ====
+  function buildClassificationText(n) {
+    const parts = [];
+
+    if (n.team) parts.push(`班: ${n.team}`);
+    if (n.battery && n.battery.length) {
+      parts.push(`電池: ${n.battery.join(" / ")}`);
+    }
+    if (n.nichrome && n.nichrome.length) {
+      parts.push(`ニクロム線: ${n.nichrome.join(" / ")}`);
+    }
+    if (n.nichromeLength != null && n.nichromeLength !== "") {
+      parts.push(`ニクロム線の長さ: ${n.nichromeLength}mm`);
+    }
+    if (n.measure) {
+      const m = n.measure;
+      const start = [];
+      const end = [];
+      if (m.start) {
+        if (m.start.temp != null) start.push(`水温${m.start.temp}℃`);
+        if (m.start.volt != null) start.push(`電圧${m.start.volt}V`);
+        if (m.start.amp  != null) start.push(`電流${m.start.amp}`);
+      }
+      if (m.end) {
+        if (m.end.temp != null) end.push(`水温${m.end.temp}℃`);
+        if (m.end.volt != null) end.push(`電圧${m.end.volt}V`);
+        if (m.end.amp  != null) end.push(`電流${m.end.amp}`);
+      }
+      if (start.length) parts.push(`開始測定値: ${start.join(", ")}`);
+      if (end.length)   parts.push(`終了測定値: ${end.join(", ")}`);
+    }
+    if (n.text) {
+      parts.push(`コメント: ${n.text}`);
+    }
+
+    // 何もないと空文字になるので、そのときだけidを入れておく
+    if (parts.length === 0) {
+      parts.push(`ID:${n.id}`);
+    }
+
+    return parts.join(" / ");
+  }
+
   // ==== Gemini で分類（JSONモード + ゆるいパース） ====
   async function classifyNotes() {
     if (notes.length === 0) {
@@ -949,7 +994,7 @@
 
     const categoryText = categoriesInput.value.trim();
     if (!categoryText) {
-      alert("カテゴリ一覧を入力してください（例：質問, 感想, 改善案, その他）");
+      alert("カテゴリ一覧を入力してください（例：1個, 直列, 並列 など）");
       return;
     }
 
@@ -963,17 +1008,22 @@
     classifyBtn.textContent = "分類中...";
 
     try {
-      const payloadNotes = notes.map(n => ({ id: n.id, text: n.text }));
+      // ★ コメントだけでなく、班・電池・ニクロム線・測定値も含めた説明文を渡す
+      const payloadNotes = notes.map(n => ({
+        id: n.id,
+        text: buildClassificationText(n)
+      }));
 
       const prompt =
-        "あなたは授業で集めた短いコメントを分類するアシスタントです。\n" +
+        "あなたは理科実験のデータを分類するアシスタントです。\n" +
+        "各 comments[i].text には「班・ニクロム線・電池構成（1個/直列/並列など）・測定値・コメント」などをまとめた日本語の1行テキストが入っています。\n" +
         "与えられた comments 配列の各要素に、日本語の 'category' フィールドを追加してください。\n" +
         "category は次の中から必ず1つだけ選んでください：\n" +
         categories.join(" / ") + "\n\n" +
         "出力は JSON オブジェクトのみとし、余計な説明文やコードブロックマーカーは一切書かないでください。\n" +
         "形式は次のようにしてください：\n" +
-        "{\"comments\":[{\"id\":\"N001\",\"text\":\"コメント本文\",\"category\":\"感想\"}, ...]}\n\n" +
-        "では、次の comments を分類してください：\n\n" +
+        "{\"comments\":[{\"id\":\"N001\",\"text\":\"説明文\",\"category\":\"直列\"}, ...]}\n\n" +
+        "それでは、次の comments を分類してください：\n\n" +
         JSON.stringify({ comments: payloadNotes }, null, 2);
 
       const url =
@@ -1061,5 +1111,6 @@
 
   classifyBtn.addEventListener("click", classifyNotes);
 </script>
+
 </body>
 </html>
