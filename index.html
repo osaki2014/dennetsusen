@@ -439,12 +439,16 @@
       </div>
     </div>
 
-    <!-- ニクロム線 -->
+    <!-- ニクロム線（ラジオボタン） -->
     <div class="field-group">
       <label>ニクロム線</label>
       <div class="field-row small-gap">
-        <label class="chk-label"><input id="nichrome02" type="checkbox" />0.2mm</label>
-        <label class="chk-label"><input id="nichrome04" type="checkbox" />0.4mm</label>
+        <label class="chk-label">
+          <input id="nichrome02" type="radio" name="nichromeType" />0.2mm
+        </label>
+        <label class="chk-label">
+          <input id="nichrome04" type="radio" name="nichromeType" />0.4mm
+        </label>
         <input id="nichromeLen" type="number" min="0" step="1" placeholder="長さ(mm)" />
       </div>
     </div>
@@ -469,7 +473,7 @@
     <div class="field-group">
       <label>測定値（開始／終了）</label>
       <div class="measure-table">
-        <div></div><div>水温 ℃</div><div>電圧 V</div><div>電流</div>
+        <div></div><div>水温 ℃</div><div>電圧 V</div><div>電流 A</div>
 
         <div>開始</div>
         <input id="s_temp" type="number" step="0.1" />
@@ -650,7 +654,7 @@
     const team = teamInput.value.trim();   // 空でもOK
     const text = commentInput.value.trim(); // コメントは任意
 
-    // ニクロム線
+    // ニクロム線（radio なので0〜1個）
     const nichrome = [];
     if (nichrome02.checked) nichrome.push("0.2mm");
     if (nichrome04.checked) nichrome.push("0.4mm");
@@ -940,7 +944,20 @@
   function buildClassificationText(n) {
     const parts = [];
 
+    if (n.name) parts.push(`名前: ${n.name}`);
     if (n.team) parts.push(`班: ${n.team}`);
+
+    // 送信時刻（ローカルタイム）
+    if (n.createdAt instanceof Date) {
+      const d = n.createdAt;
+      const yyyy = d.getFullYear();
+      const mm = String(d.getMonth() + 1).padStart(2, "0");
+      const dd = String(d.getDate()).padStart(2, "0");
+      const hh = String(d.getHours()).padStart(2, "0");
+      const mi = String(d.getMinutes()).padStart(2, "0");
+      parts.push(`送信日時: ${yyyy}-${mm}-${dd} ${hh}時${mi}分`);
+    }
+
     if (n.battery && n.battery.length) {
       parts.push(`電池: ${n.battery.join(" / ")}`);
     }
@@ -994,7 +1011,7 @@
 
     const categoryText = categoriesInput.value.trim();
     if (!categoryText) {
-      alert("カテゴリ一覧を入力してください（例：1個, 直列, 並列 など）");
+      alert("カテゴリ一覧を入力してください（例：1個, 直列, 並列 / 11時30分〜12時 など）");
       return;
     }
 
@@ -1008,7 +1025,7 @@
     classifyBtn.textContent = "分類中...";
 
     try {
-      // ★ コメントだけでなく、班・電池・ニクロム線・測定値も含めた説明文を渡す
+      // コメントだけでなく、名前・班・電池・ニクロム線・測定値・送信時刻も含めた説明文を渡す
       const payloadNotes = notes.map(n => ({
         id: n.id,
         text: buildClassificationText(n)
@@ -1016,7 +1033,7 @@
 
       const prompt =
         "あなたは理科実験のデータを分類するアシスタントです。\n" +
-        "各 comments[i].text には「班・ニクロム線・電池構成（1個/直列/並列など）・測定値・コメント」などをまとめた日本語の1行テキストが入っています。\n" +
+        "各 comments[i].text には「名前・班・ニクロム線・電池構成（1個/直列/並列など）・測定値・送信日時・コメント」などをまとめた日本語の1行テキストが入っています。\n" +
         "与えられた comments 配列の各要素に、日本語の 'category' フィールドを追加してください。\n" +
         "category は次の中から必ず1つだけ選んでください：\n" +
         categories.join(" / ") + "\n\n" +
