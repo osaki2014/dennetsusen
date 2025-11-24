@@ -12,18 +12,19 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <style>
     :root {
-      --bg: #f3f5ff;
+      --bg: #f5f5f5;          /* 白＋ごく薄いグレー基調 */
       --card: #ffffff;
-      --ink: #222;
-      --accent: #4f46e5;
-      --accent-soft: #e0e7ff;
+      --ink: #222222;
+      --accent: #555555;      /* ボタンなどのアクセントもグレー系に */
+      --accent-soft: #e5e5e5; /* バッジなどの淡いグレー */
       --danger: #ef4444;
     }
     * { box-sizing: border-box; }
     body {
       margin: 0;
       font-family: system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
-      background: radial-gradient(circle at top, #e0ebff, #f8fafc);
+      /* 青みをやめてモノトーンのやわらかいグラデーションに */
+      background: radial-gradient(circle at top, #ffffff 0, #f5f5f5 40%, #e5e5e5 100%);
       color: var(--ink);
     }
     header {
@@ -31,8 +32,8 @@
       top: 0;
       z-index: 10;
       backdrop-filter: blur(12px);
-      background: rgba(248, 250, 252, 0.9);
-      border-bottom: 1px solid rgba(148, 163, 184, 0.4);
+      background: rgba(255, 255, 255, 0.9);
+      border-bottom: 1px solid #d4d4d8; /* グレー系に */
       padding: 8px 16px;
       display: flex;
       flex-wrap: wrap;
@@ -54,7 +55,7 @@
       width: 32px;
       height: 32px;
       border-radius: 8px;
-      border: 1px solid #cbd5f5;
+      border: 1px solid #d4d4d8; /* モノトーン */
       background: #ffffff;
       display: inline-flex;
       align-items: center;
@@ -63,11 +64,12 @@
       cursor: pointer;
     }
     .qr-button:hover {
-      box-shadow: 0 0 0 2px rgba(79, 70, 229, 0.15);
+      box-shadow: 0 0 0 2px rgba(0, 0, 0, 0.06); /* 青系の光沢をやめる */
     }
     .qr-icon {
       width: 20px;
       height: 20px;
+      /* QR自体は黒と白だけなのでそのまま */
       background-image: url("data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 40 40'><rect width='40' height='40' fill='%23ffffff'/><rect x='3' y='3' width='14' height='14' fill='none' stroke='%23000000' stroke-width='3'/><rect x='23' y='3' width='14' height='14' fill='none' stroke='%23000000' stroke-width='3'/><rect x='3' y='23' width='14' height='14' fill='none' stroke='%23000000' stroke-width='3'/><rect x='7' y='7' width='6' height='6' fill='%23000000'/><rect x='27' y='7' width='6' height='6' fill='%23000000'/><rect x='7' y='27' width='6' height='6' fill='%23000000'/><rect x='22' y='22' width='4' height='4' fill='%23000000'/><rect x='30' y='22' width='3' height='7' fill='%23000000'/><rect x='22' y='30' width='7' height='3' fill='%23000000'/></svg>");
       background-size: cover;
       background-position: center;
@@ -89,7 +91,7 @@
     }
     label {
       font-size: 0.8rem;
-      color: #475569;
+      color: #555555; /* 青みのあるグレーから中性グレーへ */
       white-space: nowrap;
     }
     input[type="text"],
@@ -99,7 +101,7 @@
       font: inherit;
       padding: 4px 8px;
       border-radius: 999px;
-      border: 1px solid #cbd5f5;
+      border: 1px solid #d4d4d8;  /* 青みを消す */
       min-width: 120px;
       background: #fff;
       outline: none;
@@ -109,7 +111,7 @@
     input[type="number"]:focus,
     select:focus {
       border-color: var(--accent);
-      box-shadow: 0 0 0 2px rgba(79, 70, 229, 0.15);
+      box-shadow: 0 0 0 2px rgba(0, 0, 0, 0.06); /* 中性の淡い影 */
     }
     button {
       font: inherit;
@@ -123,7 +125,7 @@
       white-space: nowrap;
     }
     .btn-primary {
-      background: var(--accent);
+      background: var(--accent);  /* グレーの実験室ボタン */
       color: #fff;
     }
     .btn-primary:disabled {
@@ -132,8 +134,8 @@
     }
     .btn-ghost {
       background: transparent;
-      border: 1px solid #cbd5f5;
-      color: #475569;
+      border: 1px solid #d4d4d8;
+      color: #555555;
     }
     .btn-ghost-danger {
       background: transparent;
@@ -152,11 +154,11 @@
     }
 
     .panel {
-      background: rgba(255, 255, 255, 0.9);
+      background: rgba(255, 255, 255, 0.98);
       border-radius: 16px;
-      box-shadow: 0 10px 30px rgba(15, 23, 42, 0.08);
+      box-shadow: 0 10px 30px rgba(15, 23, 42, 0.06); /* 影も少し弱めに */
       padding: 14px 16px 16px;
-      border: 1px solid rgba(148, 163, 184, 0.4);
+      border: 1px solid #d4d4d8;
     }
     .panel h2 {
       margin: 0 0 8px;
@@ -168,7 +170,37 @@
     .panel p.hint {
       margin: 0 0 10px;
       font-size: 0.8rem;
-      color: #64748b;
+      color: #6b7280;
+    }
+
+    /* 右側パネルを黒板に（ここから下の board-panel 関連は「そのまま」） */
+    .panel.board-panel {
+      background:
+        radial-gradient(circle at 10% 0%, rgba(255,255,255,0.14) 0, transparent 40%),
+        radial-gradient(circle at 90% 100%, rgba(255,255,255,0.06) 0, transparent 45%),
+        linear-gradient(135deg, #253c30 0%, #07130b 70%, #020305 100%);
+      border-color: #3f4f3a;
+      color: #f9fbe7;
+      box-shadow:
+        0 0 0 6px #8b5a2b,
+        0 0 0 10px #d1a66b,
+        0 18px 30px rgba(0,0,0,0.35);
+    }
+    .panel.board-panel h2 {
+      color: #fefce8;
+    }
+    .panel.board-panel p.hint {
+      color: #e5f2d0;
+    }
+    .panel.board-panel .btn-ghost {
+      border-color: rgba(226, 232, 240, 0.7);
+      background: rgba(255, 255, 255, 0.12);
+      color: #f9fafb;
+    }
+    .panel.board-panel .btn-ghost-danger {
+      border-color: rgba(252, 165, 165, 0.85);
+      background: rgba(248, 113, 113, 0.12);
+      color: #fee2e2;
     }
 
     .field-group {
@@ -181,6 +213,7 @@
       display: flex;
       flex-wrap: wrap;
       gap: 8px;
+      ;
     }
     .field-row > * {
       flex: 1 1 0;
@@ -197,44 +230,50 @@
       resize: vertical;
       padding: 8px 10px;
       border-radius: 12px;
-      border: 1px solid #cbd5f5;
+      border: 1px solid #d4d4d8;
       font: inherit;
       outline: none;
+      background: #ffffff;
     }
     textarea:focus {
       border-color: var(--accent);
-      box-shadow: 0 0 0 2px rgba(79, 70, 229, 0.15);
+      box-shadow: 0 0 0 2px rgba(0, 0, 0, 0.06);
     }
 
     .status {
       font-size: 0.8rem;
-      color: #64748b;
+      color: #6b7280;
       min-height: 1.2em;
     }
     .status.error { color: var(--danger); }
 
+    /* データボード（黒板の上に透明な貼り付けエリア） */
     .board {
       display: flex;
-      gap: 12px;
-      align-items: stretch;
+      gap: 16px;
+      align-items: flex-start;
       overflow-x: auto;
-      padding-bottom: 4px;
+      padding: 10px 4px 4px;
+      border-radius: 14px;
+      background: transparent;
+      box-shadow: none;
+      border: none;
     }
+
     .column {
       flex: 1;
       min-width: 200px;
-      background: #f8fafc;
+      background: rgba(15, 23, 42, 0.02);
       border-radius: 14px;
-      padding: 8px 8px 10px;
-      border: 1px dashed #cbd5f5;
+      padding: 6px 6px 10px;
+      border: 1px dashed rgba(226, 232, 240, 0.25);
       display: flex;
       flex-direction: column;
-      max-height: calc(100vh - 160px);
     }
     .column-header {
       font-size: 0.85rem;
       font-weight: 600;
-      color: #475569;
+      color: #f9fbe7;
       margin-bottom: 6px;
       display: flex;
       justify-content: space-between;
@@ -244,23 +283,25 @@
       font-size: 0.7rem;
       padding: 2px 6px;
       border-radius: 999px;
-      background: rgba(148, 163, 184, 0.14);
+      background: rgba(248, 250, 252, 0.18);
+      color: #e2f3d2;
     }
     .column-body {
-      overflow-y: auto;
-      display: grid;
-      grid-auto-rows: minmax(0, auto);
+      display: flex;
+      flex-direction: column;
       gap: 8px;
       padding-right: 2px;
+      overflow-y: visible;
     }
 
     .note {
       position: relative;
-      padding: 10px 10px 10px;
+      padding: 12px 12px 26px;
       border-radius: 10px;
+      /* 付箋の色は黒板エリアの雰囲気としてそのまま残しています */
       background: #fef9c3;
       box-shadow:
-        0 6px 10px rgba(15, 23, 42, 0.2),
+        0 6px 10px rgba(15, 23, 42, 0.3),
         inset 0 0 0 1px rgba(148, 163, 184, 0.2);
       font-size: 0.85rem;
       transform: rotate(-1.5deg);
@@ -268,6 +309,8 @@
       transition: transform 0.12s ease, box-shadow 0.12s ease;
       cursor: default;
       word-break: break-word;
+      overflow-wrap: anywhere;
+      color: #111111;  /* データカード内の文字色は黒 */
     }
     .note:nth-child(2n) {
       transform: rotate(1.3deg);
@@ -280,8 +323,8 @@
     .note:hover {
       transform: translateY(-2px) scale(1.01);
       box-shadow:
-        0 10px 18px rgba(15, 23, 42, 0.28),
-        inset 0 0 0 1px rgba(148, 163, 184, 0.2);
+        0 10px 18px rgba(0, 0, 0, 0.4),
+        inset 0 0 0 1px rgba(148, 163, 184, 0.25);
     }
     .note-author {
       font-weight: 600;
@@ -299,13 +342,9 @@
       background: rgba(15, 23, 42, 0.12);
       color: #020617;
     }
-    .note-text { white-space: pre-wrap; margin-bottom: 4px; }
-    .note-id {
-      position: absolute;
-      bottom: 4px;
-      right: 6px;
-      font-size: 0.65rem;
-      opacity: 0.5;
+    .note-text {
+      white-space: pre-wrap;
+      margin-bottom: 4px;
     }
     .note-meta {
       margin-top: 4px;
@@ -314,12 +353,53 @@
       line-height: 1.4;
     }
 
+    .note-footer {
+      margin-top: 6px;
+      display: flex;
+      gap: 6px;
+      justify-content: flex-end;
+      align-items: center;
+      font-size: 0.75rem;
+    }
+    .note-btn {
+      border-radius: 999px;
+      border: 1px solid rgba(148, 163, 184, 0.6);
+      background: rgba(255, 255, 255, 0.8);
+      font-size: 0.7rem;
+      padding: 2px 8px;
+      display: inline-flex;
+      align-items: center;
+      gap: 4px;
+      cursor: pointer;
+    }
+    .note-btn:disabled {
+      opacity: 0.6;
+      cursor: default;
+    }
+    .note-btn-like {
+      border-color: #bfdbfe;
+      background: #eff6ff;
+    }
+    .note-btn-del {
+      border-color: #fecaca;
+      background: #fee2e2;
+      color: #b91c1c;
+    }
+
+    .note-id {
+      position: absolute;
+      bottom: 4px;
+      right: 6px;
+      font-size: 0.65rem;
+      opacity: 0.5;
+    }
+
     .badge {
       font-size: 0.7rem;
       padding: 2px 6px;
       border-radius: 999px;
-      background: var(--accent-soft);
-      color: #1d296b;
+      background: var(--accent-soft); /* グレー系バッジに */
+      color: #404040;
     }
 
     .chk-label {
@@ -340,10 +420,10 @@
     }
     .measure-table input {
       width: 100%;
-      min-width: 0;  /* フォームが横にはみ出さないようにする */
+      min-width: 0;
       padding: 4px 6px;
       border-radius: 6px;
-      border: 1px solid #cbd5f5;
+      border: 1px solid #d4d4d8;
       font-size: 0.85rem;
     }
     .measure-table div {
@@ -352,7 +432,7 @@
       align-items: center;
     }
 
-    /* QRモーダル */
+    /* QRモーダル（リサイズ対応 + QR拡大） */
     #qrOverlay {
       position: fixed;
       inset: 0;
@@ -371,8 +451,11 @@
       padding: 16px 20px;
       box-shadow: 0 24px 60px rgba(15, 23, 42, 0.45);
       text-align: center;
-      max-width: 320px;
-      width: 90%;
+      max-width: 90vw;
+      width: min(90vw, 440px);
+      resize: both;
+      overflow: auto;
+      cursor: default;
     }
     .qr-modal h2 {
       margin: 0 0 4px;
@@ -381,10 +464,22 @@
     .qr-modal p {
       margin: 0 0 8px;
       font-size: 0.8rem;
-      color: #64748b;
+      color: #6b7280;
     }
     #qrContainer {
       margin: 8px auto 12px;
+      width: 100%;
+      max-width: 600px;
+      aspect-ratio: 1 / 1;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+    }
+    #qrContainer canvas,
+    #qrContainer img {
+      width: 100%;
+      height: 100%;
+      display: block;
     }
     #qrClose {
       font-size: 0.8rem;
@@ -419,7 +514,7 @@
 <main>
   <!-- 入力パネル -->
   <section class="panel">
-    <h2>✍ コメントを追加</h2>
+    <h2>✍ データを追加</h2>
     <p class="hint">必要な項目を入力し、個人のデータを追加できます。</p>
 
     <!-- 名前・班 -->
@@ -473,7 +568,7 @@
     <div class="field-group">
       <label>測定値（開始／終了）</label>
       <div class="measure-table">
-        <div></div><div>水温 ℃</div><div>電圧 V</div><div>電流 A</div>
+        <div></div><div>水温 ℃</div><div>電圧 V</div><div>電流</div>
 
         <div>開始</div>
         <input id="s_temp" type="number" step="0.1" />
@@ -507,13 +602,14 @@
     </p>
   </section>
 
-  <!-- ボードパネル -->
-  <section class="panel">
+  <!-- ボードパネル（黒板） -->
+  <section class="panel board-panel">
     <h2>📌 データ集計ボード</h2>
 
-    <!-- 保存・削除ボタン -->
+    <!-- 保存・削除・いいねリセットボタン -->
     <div class="field-row" style="justify-content:flex-end; margin-bottom:4px;">
       <button id="exportBtn" class="btn-ghost" type="button">💾 全データを保存</button>
+      <button id="resetLikesBtn" class="btn-ghost" type="button">💗 いいねをリセット</button>
       <button id="clearBtn" class="btn-ghost-danger" type="button">🗑 全データを削除</button>
     </div>
 
@@ -547,8 +643,8 @@
     if (!qrInstance) {
       qrInstance = new QRCode(qrContainer, {
         text: QR_URL,
-        width: 256,
-        height: 256
+        width: 360,
+        height: 360
       });
     }
     qrOverlay.classList.add("active");
@@ -608,6 +704,7 @@
   const classifyBtn = document.getElementById("classifyBtn");
 
   const exportBtn = document.getElementById("exportBtn");
+  const resetLikesBtn = document.getElementById("resetLikesBtn");
   const clearBtn = document.getElementById("clearBtn");
 
   const boardEl = document.getElementById("board");
@@ -628,14 +725,15 @@
         notes.push({
           id: d.id,
           name: d.name,
-          team: d.team || d.tag || "",
+          team: d.team || "",
           text: d.text || "",
           category: d.category || "未分類",
           createdAt,
           nichrome: d.nichrome || [],
           nichromeLength: d.nichromeLength || null,
           battery: d.battery || [],
-          measure: d.measure || null
+          measure: d.measure || null,
+          likes: d.likes || 0
         });
       });
 
@@ -651,22 +749,19 @@
   // ==== データを追加（Firestoreに保存） ====
   addBtn.addEventListener("click", async () => {
     const name = nameInput.value.trim() || "名無し";
-    const team = teamInput.value.trim();   // 空でもOK
-    const text = commentInput.value.trim(); // コメントは任意
+    const team = teamInput.value.trim();
+    const text = commentInput.value.trim();
 
-    // ニクロム線（radio なので0〜1個）
     const nichrome = [];
     if (nichrome02.checked) nichrome.push("0.2mm");
     if (nichrome04.checked) nichrome.push("0.4mm");
     const nichromeLength = nichromeLen.value ? Number(nichromeLen.value) : null;
 
-    // 電池（ラジオボタンなので必ず0か1個）
     const battery = [];
     if (batSingle.checked) battery.push("1個");
     if (batSeries.checked) battery.push("直列");
     if (batParallel.checked) battery.push("並列");
 
-    // 測定値
     function parseNum(el) {
       return el.value !== "" ? Number(el.value) : null;
     }
@@ -700,10 +795,10 @@
         nichrome,
         nichromeLength,
         battery,
-        measure
+        measure,
+        likes: 0
       });
 
-      // 入力リセット（名前・班は残す）
       commentInput.value = "";
       nichrome02.checked = false;
       nichrome04.checked = false;
@@ -757,7 +852,8 @@
       "start_amp",
       "end_temp",
       "end_volt",
-      "end_amp"
+      "end_amp",
+      "likes"
     ];
     const lines = [header.join(",")];
 
@@ -783,7 +879,8 @@
         m.start?.amp ?? "",
         m.end?.temp ?? "",
         m.end?.volt ?? "",
-        m.end?.amp ?? ""
+        m.end?.amp ?? "",
+        n.likes ?? 0
       ].map(csvEscape).join(",");
       lines.push(row);
     });
@@ -807,6 +904,36 @@
     URL.revokeObjectURL(url);
   });
 
+  // ==== いいね一括リセット ====
+  resetLikesBtn.addEventListener("click", async () => {
+    if (notes.length === 0) {
+      alert("リセットするいいねがありません。");
+      return;
+    }
+    const ok = confirm("すべてのデータの『いいね』を 0 にリセットします。よろしいですか？");
+    if (!ok) return;
+
+    resetLikesBtn.disabled = true;
+    const originalText = resetLikesBtn.textContent;
+    resetLikesBtn.textContent = "リセット中...";
+
+    try {
+      const snapshot = await db.collection("notes").get();
+      const batch = db.batch();
+      snapshot.forEach((doc) => {
+        batch.update(doc.ref, { likes: 0 });
+      });
+      await batch.commit();
+      alert("すべての『いいね』をリセットしました。");
+    } catch (e) {
+      console.error(e);
+      alert("リセット中にエラーが発生しました。コンソールを確認してください。");
+    } finally {
+      resetLikesBtn.disabled = false;
+      resetLikesBtn.textContent = originalText;
+    }
+  });
+
   // ==== データ削除（全削除） ====
   clearBtn.addEventListener("click", async () => {
     if (notes.length === 0) {
@@ -820,6 +947,7 @@
     if (!ok) return;
 
     clearBtn.disabled = true;
+    const originalText = clearBtn.textContent;
     clearBtn.textContent = "削除中...";
 
     try {
@@ -833,7 +961,7 @@
       alert("削除中にエラーが発生しました。コンソールを確認してください。");
     } finally {
       clearBtn.disabled = false;
-      clearBtn.textContent = "🗑 全データを削除";
+      clearBtn.textContent = originalText;
     }
   });
 
@@ -883,14 +1011,11 @@
           right.textContent = n.team || cat;
           authorEl.appendChild(left);
           authorEl.appendChild(right);
-          noteEl.appendChild(authorEl);
 
           const textEl = document.createElement("div");
           textEl.className = "note-text";
           textEl.textContent = n.text;
-          noteEl.appendChild(textEl);
 
-          // メタ情報（ニクロム線・電池・測定値）
           const metaParts = [];
 
           if ((n.nichrome && n.nichrome.length) || n.nichromeLength != null) {
@@ -927,9 +1052,56 @@
             noteEl.appendChild(metaEl);
           }
 
+          const footerEl = document.createElement("div");
+          footerEl.className = "note-footer";
+
+          const likeBtn = document.createElement("button");
+          likeBtn.type = "button";
+          likeBtn.className = "note-btn note-btn-like";
+          likeBtn.textContent = "💗 " + (n.likes ?? 0);   // ハートアイコン
+
+          likeBtn.addEventListener("click", async (e) => {
+            e.stopPropagation();
+            likeBtn.disabled = true;
+            try {
+              await db.collection("notes")
+                .doc(n.id)
+                .update({ likes: firebase.firestore.FieldValue.increment(1) });
+            } catch (err) {
+              console.error(err);
+              alert("いいねの反映中にエラーが発生しました。");
+            } finally {
+              likeBtn.disabled = false;
+            }
+          });
+
+          const delBtn = document.createElement("button");
+          delBtn.type = "button";
+          delBtn.className = "note-btn note-btn-del";
+          delBtn.textContent = "🗑 削除";
+
+          delBtn.addEventListener("click", async (e) => {
+            e.stopPropagation();
+            const ok = confirm(`このデータ（${n.id}）を削除しますか？`);
+            if (!ok) return;
+            try {
+              await db.collection("notes").doc(n.id).delete();
+            } catch (err) {
+              console.error(err);
+              alert("削除中にエラーが発生しました。");
+            }
+          });
+
+          footerEl.appendChild(likeBtn);
+          footerEl.appendChild(delBtn);
+
           const idEl = document.createElement("div");
           idEl.className = "note-id";
           idEl.textContent = n.id;
+
+          noteEl.appendChild(authorEl);
+          noteEl.appendChild(textEl);
+          noteEl.appendChild(footerEl);
           noteEl.appendChild(idEl);
 
           body.appendChild(noteEl);
@@ -947,7 +1119,6 @@
     if (n.name) parts.push(`名前: ${n.name}`);
     if (n.team) parts.push(`班: ${n.team}`);
 
-    // 送信時刻（ローカルタイム）
     if (n.createdAt instanceof Date) {
       const d = n.createdAt;
       const yyyy = d.getFullYear();
@@ -988,7 +1159,6 @@
       parts.push(`コメント: ${n.text}`);
     }
 
-    // 何もないと空文字になるので、そのときだけidを入れておく
     if (parts.length === 0) {
       parts.push(`ID:${n.id}`);
     }
@@ -996,7 +1166,7 @@
     return parts.join(" / ");
   }
 
-  // ==== Gemini で分類（JSONモード + ゆるいパース） ====
+  // ==== Gemini で分類 ====
   async function classifyNotes() {
     if (notes.length === 0) {
       alert("分類するデータがありません。");
@@ -1025,7 +1195,6 @@
     classifyBtn.textContent = "分類中...";
 
     try {
-      // コメントだけでなく、名前・班・電池・ニクロム線・測定値・送信時刻も含めた説明文を渡す
       const payloadNotes = notes.map(n => ({
         id: n.id,
         text: buildClassificationText(n)
@@ -1054,9 +1223,7 @@
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({
           contents: [
-            {
-              parts: [{ text: prompt }]
-            }
+            { parts: [{ text: prompt }] }
           ],
           generationConfig: {
             response_mime_type: "application/json"
@@ -1107,7 +1274,6 @@
         if (cat) n.category = cat;
       });
 
-      // Firestore にもカテゴリを反映
       const batch = db.batch();
       notes.forEach((n) => {
         const ref = db.collection("notes").doc(n.id);
