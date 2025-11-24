@@ -484,6 +484,41 @@
     #qrClose {
       font-size: 0.8rem;
     }
+        /* カード内に表示する計測値テーブル */
+        .note-measure {
+      margin-top: 6px;
+      padding: 4px 6px;
+      border-radius: 6px;
+      background: rgba(255, 255, 255, 0.9);  /* 付箋の上に白い小カード */
+    }
+    .note-measure-title {
+      font-size: 0.75rem;
+      font-weight: 600;
+      margin: 0 0 2px;
+      color: #374151;
+    }
+    .measure-board-table {
+      width: 100%;
+      border-collapse: collapse;
+      font-size: 0.7rem;
+    }
+    .measure-board-table th,
+    .measure-board-table td {
+      padding: 2px 4px;
+      text-align: center;
+      white-space: nowrap;
+    }
+    .measure-board-table thead th {
+      border-bottom: 1px solid rgba(148, 163, 184, 0.6);
+      font-weight: 600;
+    }
+    .measure-board-table tbody tr + tr td,
+    .measure-board-table tbody tr + tr th {
+      border-top: 1px dashed rgba(148, 163, 184, 0.4);
+    }
+    .measure-board-table.secondary th {
+      text-align: center;
+    }
   </style>
 </head>
 
@@ -965,8 +1000,8 @@
     }
   });
 
-  // ==== ボード描画 ====
-  function renderBoard() {
+   // ==== ボード描画 ====
+   function renderBoard() {
     boardEl.innerHTML = "";
     if (notes.length === 0) {
       boardHint.textContent = "まだデータがありません。左から追加してください。";
@@ -1002,6 +1037,7 @@
           const noteEl = document.createElement("div");
           noteEl.className = "note";
 
+          // 名前・班
           const authorEl = document.createElement("div");
           authorEl.className = "note-author";
           const left = document.createElement("span");
@@ -1012,10 +1048,12 @@
           authorEl.appendChild(left);
           authorEl.appendChild(right);
 
+          // コメント
           const textEl = document.createElement("div");
           textEl.className = "note-text";
           textEl.textContent = n.text;
 
+          // --- ニクロム線・電池（メタ情報）---
           const metaParts = [];
 
           if ((n.nichrome && n.nichrome.length) || n.nichromeLength != null) {
@@ -1034,31 +1072,130 @@
             metaParts.push("電池: " + n.battery.join(" / "));
           }
 
-          if (n.measure) {
-            const m = n.measure;
-            function fmt(v) {
-              return (v === null || v === undefined || v === "") ? "-" : v;
-            }
-            metaParts.push(
-              `開始: 水温 ${fmt(m.start?.temp)}℃, 電圧 ${fmt(m.start?.volt)}V, 電流 ${fmt(m.start?.amp)}`,
-              `終了: 水温 ${fmt(m.end?.temp)}℃, 電圧 ${fmt(m.end?.volt)}V, 電流 ${fmt(m.end?.amp)}`
-            );
-          }
-
+          let metaEl = null;
           if (metaParts.length) {
-            const metaEl = document.createElement("div");
+            metaEl = document.createElement("div");
             metaEl.className = "note-meta";
             metaEl.textContent = metaParts.join("　");
-            noteEl.appendChild(metaEl);
           }
 
+          // --- 計測値（表＋上昇温度／電力）---
+          let measureWrapper = null;
+
+          if (n.measure) {
+            const m = n.measure;
+            const start = m.start || {};
+            const end   = m.end   || {};
+
+            const hasStart = (
+              start.temp !== null && start.temp !== undefined ||
+              start.volt !== null && start.volt !== undefined ||
+              start.amp  !== null && start.amp  !== undefined
+            );
+            const hasEnd = (
+              end.temp !== null && end.temp !== undefined ||
+              end.volt !== null && end.volt !== undefined ||
+              end.amp  !== null && end.amp  !== undefined
+            );
+
+            // 数値フォーマット用ヘルパー
+            const fmt = (v, digits = 1) => {
+              if (v === null || v === undefined || v === "") return "-";
+              const num = Number(v);
+              if (Number.isNaN(num)) return "-";
+              return Number(num.toFixed(digits));
+            };
+
+            // 上昇温度と電力の計算
+            let deltaTemp = null;
+            if (start.temp != null && end.temp != null) {
+              deltaTemp = Number(end.temp) - Number(start.temp);
+            }
+
+            let avgVolt = null;
+            if (start.volt != null && end.volt != null) {
+              avgVolt = (Number(start.volt) + Number(end.volt)) / 2;
+            }
+
+            let avgAmp = null;
+            if (start.amp != null && end.amp != null) {
+              avgAmp = (Number(start.amp) + Number(end.amp)) / 2;
+            }
+
+            let power = null;
+            if (avgVolt !== null && avgAmp !== null) {
+              power = avgVolt * avgAmp;   // W = 平均電圧 × 平均電流
+            }
+
+            measureWrapper = document.createElement("div");
+            measureWrapper.className = "note-measure";
+
+            const titleEl = document.createElement("p");
+            titleEl.className = "note-measure-title";
+            titleEl.textContent = "計測値";
+            measureWrapper.appendChild(titleEl);
+
+            // 開始／終了の表
+            if (hasStart || hasEnd) {
+              const table = document.createElement("table");
+              table.className = "measure-board-table";
+              table.innerHTML = `
+                <thead>
+                  <tr>
+                    <th></th>
+                    <th>水温 ℃</th>
+                    <th>電圧 V</th>
+                    <th>電流 A</th>
+                  </tr>
+                </thead>
+                <tbody>
+                  <tr>
+                    <th>開始</th>
+                    <td>${fmt(start.temp, 1)}</td>
+                    <td>${fmt(start.volt, 2)}</td>
+                    <td>${fmt(start.amp, 2)}</td>
+                  </tr>
+                  <tr>
+                    <th>終了</th>
+                    <td>${fmt(end.temp, 1)}</td>
+                    <td>${fmt(end.volt, 2)}</td>
+                    <td>${fmt(end.amp, 2)}</td>
+                  </tr>
+                </tbody>
+              `;
+              measureWrapper.appendChild(table);
+            }
+
+            // 上昇温度・電力を同じ行の表で表示
+            if (deltaTemp !== null || power !== null) {
+              const table2 = document.createElement("table");
+              table2.className = "measure-board-table secondary";
+              table2.innerHTML = `
+                <thead>
+                  <tr>
+                    <th>上昇温度 ℃</th>
+                    <th>電力 W</th>
+                  </tr>
+                </thead>
+                <tbody>
+                  <tr>
+                    <td>${fmt(deltaTemp, 2)}</td>
+                    <td>${fmt(power, 2)}</td>
+                  </tr>
+                </tbody>
+              `;
+              measureWrapper.appendChild(table2);
+            }
+          }
+
+          // --- フッター（いいね・削除）---
           const footerEl = document.createElement("div");
           footerEl.className = "note-footer";
 
           const likeBtn = document.createElement("button");
           likeBtn.type = "button";
           likeBtn.className = "note-btn note-btn-like";
-          likeBtn.textContent = "💗 " + (n.likes ?? 0);   // ハートアイコン
+          likeBtn.textContent = "💗 " + (n.likes ?? 0);
 
           likeBtn.addEventListener("click", async (e) => {
             e.stopPropagation();
@@ -1095,14 +1232,18 @@
           footerEl.appendChild(likeBtn);
           footerEl.appendChild(delBtn);
 
+          // ID
           const idEl = document.createElement("div");
           idEl.className = "note-id";
           idEl.textContent = n.id;
 
-          noteEl.appendChild(authorEl);
-          noteEl.appendChild(textEl);
-          noteEl.appendChild(footerEl);
-          noteEl.appendChild(idEl);
+          // ===== カード内の表示順 =====
+          noteEl.appendChild(authorEl);           // 名前・班
+          if (metaEl) noteEl.appendChild(metaEl); // ニクロム線・電池
+          if (measureWrapper) noteEl.appendChild(measureWrapper); // 計測値表
+          noteEl.appendChild(textEl);             // コメント
+          noteEl.appendChild(footerEl);           // いいね・削除
+          noteEl.appendChild(idEl);               // ID
 
           body.appendChild(noteEl);
         });
@@ -1111,6 +1252,7 @@
       boardEl.appendChild(col);
     });
   }
+
 
   // ==== Gemini に渡す説明テキストを作成 ====
   function buildClassificationText(n) {
@@ -1138,23 +1280,62 @@
     if (n.nichromeLength != null && n.nichromeLength !== "") {
       parts.push(`ニクロム線の長さ: ${n.nichromeLength}mm`);
     }
+
     if (n.measure) {
       const m = n.measure;
-      const start = [];
-      const end = [];
+      const startArr = [];
+      const endArr = [];
+
+      const start = m.start || {};
+      const end   = m.end   || {};
+
       if (m.start) {
-        if (m.start.temp != null) start.push(`水温${m.start.temp}℃`);
-        if (m.start.volt != null) start.push(`電圧${m.start.volt}V`);
-        if (m.start.amp  != null) start.push(`電流${m.start.amp}`);
+        if (m.start.temp != null) startArr.push(`水温${m.start.temp}℃`);
+        if (m.start.volt != null) startArr.push(`電圧${m.start.volt}V`);
+        if (m.start.amp  != null) startArr.push(`電流${m.start.amp}`);
       }
       if (m.end) {
-        if (m.end.temp != null) end.push(`水温${m.end.temp}℃`);
-        if (m.end.volt != null) end.push(`電圧${m.end.volt}V`);
-        if (m.end.amp  != null) end.push(`電流${m.end.amp}`);
+        if (m.end.temp != null) endArr.push(`水温${m.end.temp}℃`);
+        if (m.end.volt != null) endArr.push(`電圧${m.end.volt}V`);
+        if (m.end.amp  != null) endArr.push(`電流${m.end.amp}`);
       }
-      if (start.length) parts.push(`開始測定値: ${start.join(", ")}`);
-      if (end.length)   parts.push(`終了測定値: ${end.join(", ")}`);
+      if (startArr.length) parts.push(`開始測定値: ${startArr.join(", ")}`);
+      if (endArr.length)   parts.push(`終了測定値: ${endArr.join(", ")}`);
+
+      // --- 上昇温度と電力も計算して含める ---
+      let deltaTemp = null;
+      if (start.temp != null && end.temp != null) {
+        deltaTemp = Number(end.temp) - Number(start.temp);
+      }
+
+      let avgVolt = null;
+      if (start.volt != null && end.volt != null) {
+        avgVolt = (Number(start.volt) + Number(end.volt)) / 2;
+      }
+
+      let avgAmp = null;
+      if (start.amp != null && end.amp != null) {
+        avgAmp = (Number(start.amp) + Number(end.amp)) / 2;
+      }
+
+      let power = null;
+      if (avgVolt !== null && avgAmp !== null) {
+        power = avgVolt * avgAmp;
+      }
+
+      const fmt = (v, digits = 2) => {
+        if (v === null || v === undefined || Number.isNaN(Number(v))) return "-";
+        return Number(v).toFixed(digits);
+      };
+
+      if (deltaTemp !== null) {
+        parts.push(`上昇温度: ${fmt(deltaTemp, 2)}℃`);
+      }
+      if (power !== null) {
+        parts.push(`電力: ${fmt(power, 2)}W`);
+      }
     }
+
     if (n.text) {
       parts.push(`コメント: ${n.text}`);
     }
@@ -1165,6 +1346,7 @@
 
     return parts.join(" / ");
   }
+
 
   // ==== Gemini で分類 ====
   async function classifyNotes() {
