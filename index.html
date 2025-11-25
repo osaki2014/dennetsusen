@@ -121,6 +121,7 @@
       cursor: pointer;
       display: inline-flex;
       align-items: center;
+      justify-content: center;
       gap: 6px;
       white-space: nowrap;
     }
@@ -141,6 +142,22 @@
       background: transparent;
       border: 1px solid #fecaca;
       color: #b91c1c;
+    }
+    /* 送信ボタンの紙飛行機アイコン */
+    .send-icon {
+      width: 22px;
+      height: 22px;
+      display: inline-block;
+      background-size: contain;
+      background-repeat: no-repeat;
+      background-position: center;
+      background-image: url("data:image/svg+xml;base64,PHN2ZyB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmciIHdpZHRoPSIyMiIgaGVpZ2h0PSIyMiIgdmlld0JveD0iMCAwIDI0IDI0IiBmaWxsPSJub25lIiBzdHJva2U9IndoaXRlIiBzdHJva2Utd2lkdGg9IjIiIHN0cm9rZS1saW5lY2FwPSJyb3VuZCIgc3Ryb2tlLWxpbmVqb2luPSJyb3VuZCI+PHBhdGggZD0iTTIyIDJMMTEgMTMiLz48cGF0aCBkPSJNMjIgMkwxNSAyMkwxMSAxM0wyIDlMMjIgMloiLz48L3N2Zz4=");
+    }
+
+    /* ホバーでちょっと飛ぶアニメ（お好みで） */
+    button:hover .send-icon {
+      transform: translateX(2px) translateY(-2px);
+      transition: 0.15s ease;
     }
 
     main {
@@ -624,9 +641,12 @@
       <textarea id="commentInput" placeholder="ここに意見や感想、質問などを書いてもOKです"></textarea>
     </div>
 
-    <div class="field-row" style="align-items:center; margin-top:4px;">
-      <button id="addBtn" class="btn-ghost" type="button"> データを送る。📤</button>
+    <div class="field-row" style="align-items:center; margin-top:4px; justify-content:flex-end;">
       <div id="formStatus" class="status"></div>
+      <button id="addBtn" class="btn-primary" type="button">
+        <span>データを送る</span>
+        <span class="send-icon" aria-hidden="true"></span>
+      </button>
     </div>
 
     <hr style="margin:10px 0; border:none; border-top:1px dashed #e2e8f0;" />
